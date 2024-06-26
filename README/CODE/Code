@@ -1,0 +1,281 @@
+# TRATAMENTO DE DADOS
+---fix: adicionar consultas para encontrar registros com valores nulos
+
+--- Adicionada consulta para encontrar nulos em `customers`.
+SELECT * 
+FROM neat-verbena-411713.tmw_loyaltysystem.customers 
+WHERE idCustomer IS NULL OR PointsCustomer IS NULL OR flEmail IS NULL;
+
+--- Adicionada consulta para encontrar nulos em `transactions`.
+SELECT * 
+FROM neat-verbena-411713.tmw_loyaltysystem.transactions
+WHERE Idtransaction IS NULL OR idCustomer IS NULL OR idTransaction IS NULL OR pointsTransaction IS NULL;
+
+--- Adicionada consulta para encontrar nulos em `transactions_product`.
+SELECT * 
+FROM neat-verbena-411713.tmw_loyaltysystem.transactions_product 
+WHERE idTransactionCart IS NULL OR idTransaction IS NULL OR NameProduct IS NULL OR QuantityProduct IS NULL;
+
+---feat: adicionar consulta de amostragem de registros em todas as tabelas
+
+---- Adicionada uma consulta com limite de 5 linhas de amostragem de dados em `customers`.
+SELECT *
+FROM neat-verbena-411713.tmw_loyaltysystem.customers
+LIMIT 5;
+
+---- Adicionada uma consulta com limite de 5 linhas de amostragem de dados em `transactions`.
+SELECT *
+FROM neat-verbena-411713.tmw_loyaltysystem.transactions
+LIMIT 5;
+
+---- Adicionada uma consulta com limite de 5 linhas de amostragem de dados em `transactions_product`.
+SELECT *
+FROM neat-verbena-411713.tmw_loyaltysystem.transactions
+LIMIT 5;
+
+## ANÁLISE DESCRITIVA E MANIPULAÇÃO DOS DADOS
+
+-- feat: adicionar consulta para sumarizar pontos resgatados por mês
+
+-- - Extraído o mês da data de transação.
+-- - Somados os pontos resgatados para cada mês.
+-- - Filtradas transações com pontos positivos e meses não nulos.
+-- - Agrupamento dos resultados por mês.
+-- - Ordenação dos resultados por mês.
+
+select 
+extract(month from dtTransaction) as mes,
+sum(pointsTransaction) as pontos_resgatados
+from neat-verbena-411713.tmw_loyaltysystem.transactions
+where pointsTransaction > 0 AND
+extract(month from dtTransaction) is not null
+group by mes
+order by mes;
+
+-- feat: adicionar consulta para sumarizar pontos resgatados negativamente por mês
+
+-- - Extraído o mês da data de transação.
+-- - Somados os pontos resgatados negativamente para cada mês.
+-- - Filtradas transações com pontos negativos e meses não nulos.
+-- - Agrupamento dos resultados por mês.
+-- - Ordenação dos resultados por mês.
+
+	
+select 
+extract(month from dtTransaction) as mes,
+sum(pointsTransaction) as pontos_resgatados
+from neat-verbena-411713.tmw_loyaltysystem.transactions
+where pointsTransaction < 0 AND
+extract(month from dtTransaction) is not null
+group by mes
+order by mes;
+
+-- feat: adicionar consulta para contar compras por dia da semana
+
+-- - Extraído o dia da semana da data de transação.
+-- - Contadas as transações de compras para cada dia da semana.
+-- - Filtradas transações com dias da semana não nulos e pontos positivos.
+-- - Agrupamento dos resultados por dia da semana.
+-- - Ordenação dos resultados por dia da semana.
+
+
+select extract(dayofweek from dtTransaction) as dia_semana,
+count(*) total_compras
+from neat-verbena-411713.tmw_loyaltysystem.transactions
+where extract(dayofweek from dtTransaction) is not null
+and pointsTransaction > 0
+group by dia_semana
+order by dia_semana;
+
+-- feat: Adicionar consulta SQL para contar usuários inscritos e não inscritos
+
+-- - Adiciona consulta SQL para calcular usuários inscritos ('Inscritos') e não inscritos ('Não Inscritos')
+-- - Query opera na tabela de clientes no banco de dados tmw_loyaltysystem
+
+SELECT 
+  CASE 
+    WHEN flEmail = 1 THEN 'Inscritos'
+    ELSE 'Não Inscritos'
+  END AS tipo_usuario,
+  COUNT(*) AS quantidade
+FROM neat-verbena-411713.tmw_loyaltysystem.customers
+GROUP BY tipo_usuario;
+
+-- feat: Adicionar consulta SQL para calcular pontos acumulados por cliente
+
+-- - Adiciona consulta SQL para calcular os pontos acumulados por cliente na tabela de transações no banco de dados tmw_loyaltysystem
+-- - Consulta seleciona idCustomer e SUM(pointsTransaction) onde pointsTransaction > 0
+-- - Resultados são agrupados por idCustomer e ordenados por pontos acumulados decrescentemente
+
+
+SELECT idCustomer, #1359
+SUM(*) AS pontos_acumulados
+FROM neat-verbena-411713.tmw_loyaltysystem.transactions
+WHERE pointsTransaction > 0
+GROUP BY idCustomer
+ORDER BY pontos_acumulados desc;
+
+-- feat: Adicionar consulta SQL para calcular pontos resgatados por cliente
+
+-- - Adiciona consulta SQL para calcular os pontos resgatados por cliente na tabela de transações no banco de dados tmw_loyaltysystem
+-- - Consulta seleciona idCustomer e SUM(pointsTransaction) onde pointsTransaction < 0
+-- - Resultados são agrupados por idCustomer e ordenados por pontos resgatados crescentemente
+
+
+SELECT idCustomer, #111
+SUM(pointsTransaction) AS pontos_resgatados
+FROM neat-verbena-411713.tmw_loyaltysystem.transactions
+WHERE pointsTransaction < 0
+GROUP BY idCustomer
+ORDER BY pontos_resgatados ASC;
+
+-- feat: Adicionar consulta SQL para contar transações de produtos com pontos não positivos
+
+-- - Adiciona consulta SQL para contar o número de transações de produtos com pontos não positivos na tabela de transações e produtos no banco de dados tmw_loyaltysystem
+-- - Consulta une as tabelas transactions e transactions_product usando idTransaction
+-- - Filtra transações onde pointsTransaction <= 0 e QuantityProduct >= 1
+-- - Resultados são agrupados por NameProduct e ordenados por total de transações decrescentemente
+
+
+SELECT tc.NameProduct as produto,
+count(*) as total_transacoes
+FROM neat-verbena-411713.tmw_loyaltysystem.transactions t
+JOIN neat-verbena-411713.tmw_loyaltysystem.transactions_product tc on t.idTransaction = tc.idTransaction
+WHERE t.pointsTransaction <= 0 and tc.QuantityProduct >= 1
+group by tc.NameProduct
+order by total_transacoes desc;
+
+-- feat: Adicionar consulta SQL para contar transações de produtos com pontos positivos
+
+-- - Adiciona consulta SQL para contar o número de transações de produtos com pontos positivos na tabela de transações e produtos no banco de dados tmw_loyaltysystem
+-- - Consulta une as tabelas transactions e transactions_product usando idTransaction
+-- - Filtra transações onde pointsTransaction > 0
+-- - Resultados são agrupados por NameProduct e ordenados por total de transações decrescentemente
+
+
+SELECT tc.NameProduct as produto,
+count(t.idTransaction) as total_transacoes
+FROM neat-verbena-411713.tmw_loyaltysystem.transactions t
+JOIN neat-verbena-411713.tmw_loyaltysystem.transactions_product tc on t.idTransaction = tc.idTransaction
+WHERE t.pointsTransaction > 0 
+group by tc.NameProduct
+order by total_transacoes desc;
+
+-- feat: Adicionar consulta SQL para calcular estatísticas de pontos de transação positivos por cliente
+
+-- - Adiciona consulta SQL para calcular a média, máximo e mínimo de pontos de transação positivos por cliente na tabela de clientes e transações no banco de dados tmw_loyaltysystem
+-- - Consulta junta as tabelas customers e transactions usando idCustomer
+-- - Filtra transações onde pointsTransaction > 0
+-- - Resultados incluem a média arredondada para 2 casas decimais (media_pontos), o máximo (maximo_pontos) e o mínimo (minimo_pontos) de pontos de transação
+
+
+SELECT 
+  ROUND(AVG(t.pointsTransaction), 2) AS media_pontos,
+  MAX(t.pointsTransaction) AS maximo_pontos,
+  MIN(t.pointsTransaction) AS minimo_pontos
+FROM neat-verbena-411713.tmw_loyaltysystem.customers c
+JOIN neat-verbena-411713.tmw_loyaltysystem.transactions t on c.idCustomer = t.idCustomer
+WHERE t.pointsTransaction > 0;
+
+-- feat: Adicionar consulta SQL para calcular estatísticas de pontos de transação negativos por cliente
+
+-- - Adiciona consulta SQL para calcular a média, máximo e mínimo de pontos de transação negativos por cliente na tabela de clientes e transações no banco de dados tmw_loyaltysystem
+-- - Consulta junta as tabelas customers e transactions usando idCustomer
+-- - Filtra transações onde pointsTransaction < 0
+-- - Resultados incluem a média arredondada para 2 casas decimais (media_pontos), o máximo (maximo_pontos) e o mínimo (minimo_pontos) de pontos de transação negativos
+
+
+SELECT 
+  ROUND(AVG(t.pointsTransaction), 2) AS media_pontos,
+  MAX(t.pointsTransaction) AS maximo_pontos,
+  MIN(t.pointsTransaction) AS minimo_pontos
+FROM neat-verbena-411713.tmw_loyaltysystem.customers c
+JOIN neat-verbena-411713.tmw_loyaltysystem.transactions t on c.idCustomer = t.idCustomer
+WHERE t.pointsTransaction < 0;
+
+
+-- feat: Adicionar consulta SQL para contar transações por mês
+
+-- - Adiciona consulta SQL para contar o número total de transações por mês na tabela de transações no banco de dados tmw_loyaltysystem
+-- - Extrai o mês da data da transação usando EXTRACT(month from dtTransaction)
+-- - Filtra transações onde o mês extraído não é nulo
+-- - Resultados são agrupados por mês e ordenados por ordem crescente de mês
+
+
+SELECT
+  EXTRACT(month from dtTransaction) AS mes,
+  COUNT(*) AS total_transacoes
+FROM neat-verbena-411713.tmw_loyaltysystem.transactions
+WHERE EXTRACT(month from dtTransaction) is not null
+GROUP BY mes
+ORDER BY mes;
+
+-- feat: Adicionar consulta SQL para calcular engajamento de clientes baseado em pontos acumulados
+
+-- - Adiciona consulta SQL para calcular o número de pontos acumulados por cliente e categorizar o engajamento com base nos pontos acumulados na tabela de transações no banco de dados tmw_loyaltysystem
+-- - Conta pontos acumulados por cliente usando COUNT(pointsTransaction)
+-- - Categoriza o engajamento como 'engajamento_alto' para mais de 1000 pontos, 'engajamento_medio' para entre 500 e 1000 pontos, e 'engajamento_baixo' para menos de 500 pontos
+-- - Resultados são agrupados por idCustomer e ordenados por pontos acumulados decrescentemente
+
+
+SELECT idCustomer, 
+COUNT(pointsTransaction) AS pontos_acumulados,
+CASE 
+WHEN COUNT(pointsTransaction) > 1000 THEN 'engajamento_alto'
+WHEN COUNT(pointsTransaction) BETWEEN 500 and 1000 THEN 'engajamento_medio'
+ELSE 'engajamento_baixo'
+END as engajamento
+FROM neat-verbena-411713.tmw_loyaltysystem.transactions
+WHERE pointsTransaction > 0
+GROUP BY idCustomer
+ORDER BY pontos_acumulados desc;
+
+-- feat: adicionar consulta para contar pontos resgatados por mês
+
+-- - Adicionado SELECT para formatar a data de transação como ano e mês.
+-- - Contagem de pontos resgatados por mês.
+-- - Filtragem para considerar apenas transações com pontos positivos.
+-- - Agrupamento e ordenação dos resultados por ano e mês.
+
+select 
+parse_date('%Y-%m', format_date('%Y-%m', dtTransaction)) as ano_mes,
+count(pointsTransaction) as pontos_resgatados
+from neat-verbena-411713.tmw_loyaltysystem.transactions
+where pointsTransaction > 0 AND
+format_date('%Y-%m', dtTransaction) is not null
+group by ano_mes
+order by ano_mes;
+
+---------------
+
+-- feat: adicionar CTEs para pontos resgatados e acumulados por mês
+
+-- - Adicionada CTE `resgatado` para calcular pontos resgatados por mês.
+-- - Adicionada CTE `acumulado` para calcular pontos acumulados por mês.
+-- - Usado COALESCE para lidar com valores nulos nos pontos acumulados e resgatados.
+-- - Feito JOIN entre CTEs `acumulado` e `resgatado` para combinar os resultados.
+-- - Ordenação final por mês.
+
+
+WITH resgatado as (
+select extract(month from dtTransaction) as mes,
+sum(pointsTransaction) as pontos_resgatados
+from neat-verbena-411713.tmw_loyaltysystem.transactions
+where pointsTransaction < 0
+group by mes
+order by pontos_resgatados),
+
+acumulado as (
+select extract(month from dtTransaction) as mes,
+sum(pointsTransaction) as pontos_acumulados
+from neat-verbena-411713.tmw_loyaltysystem.transactions
+where pointsTransaction > 0
+GROUP BY mes
+ORDER BY pontos_acumulados desc
+)
+SELECT a.mes,
+COALESCE (a.pontos_acumulados, 0) as pontos_acumulados,
+COALESCE (r.pontos_resgatados, 0) as pontos_resgatado
+FROM acumulado a
+JOIN resgatado r on a.mes = r.mes
+ORDER BY mes;
