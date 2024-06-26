@@ -1,7 +1,19 @@
+<p align="center">  
+ Loyalties Program TeoMeWhy Twitch 
+</p>
 
+<p align="center">
+<img 
+    src="./Imagens/dashboard.PNG"
+    width="600"  
+/>
+</p>
 
+ <p align="center"> Confira o dashboard interativo <a href="https://lookerstudio.google.com/u/0/reporting/58d73522-f6d6-4e8a-bf00-822e3b064e55/page/P103D">aqui</a>!</p>
+ 
+-------------------------------------------
 
-# Loyalties Program TeoMeWhy Twitch
+### INTRODUÇÃO
 
 O Téo Calvo implementou em suas lives o sistema de fidelidade para os seus espectadores incentivando a galera a permanecer em suas lives enquanto podem interagir com o próprio Teo e demais espectadores. Conforme os usuarios realizam as interações durante as lives, ganham pontos e podem acumular esses pontos como podem fazer trocas por recompensas e realizar ações ao vivo.
 
@@ -49,5 +61,6 @@ Pude colocar em prática também toda minha criatividade no dashboard como meu a
 
 ## 🔗​ Úteis
 
-- Assets: contém imagens do dashboard
+- Imagens: contém imagens do dashboard
 - Code: contém o código da análise
+- Dashboard: contém o dashboard para download em PDF!
