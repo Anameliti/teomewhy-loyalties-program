@@ -1,6 +1,13 @@
 <p align="center">  
  Loyalties Program TeoMeWhy Twitch 
 </p>
+<p align="center">
+<a href="https://linkedin.com/in/ana-meliti/"><img src="https://img.shields.io/badge/Project-analise_de_dados-lightgreen" alt="Post-linkedin"></a>
+<img src="https://img.shields.io/badge/Language-Python-darkviolet"> 
+<img src="https://img.shields.io/github/commit-activity/t/Anameliti/podcast-prompts-by-ia/main?color=violet"> 
+</p>
+
+---------
 
 <p align="center">
 <img 
